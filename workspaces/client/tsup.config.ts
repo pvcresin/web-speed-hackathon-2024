@@ -57,11 +57,11 @@ export default defineConfig(async (): Promise<Options[]> => {
       minify: true,
       outDir: OUTPUT_DIR,
       platform: 'browser',
-      shims: true,
+      shims: false,
       sourcemap: true,
       splitting: true,
       target: ['chrome123'],
-      treeshake: false,
+      treeshake: true,
     },
   ];
 });
