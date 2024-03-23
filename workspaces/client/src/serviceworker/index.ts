@@ -1,7 +1,6 @@
 /// <reference types="@types/serviceworker" />
 
 import { transformJpegXLToBmp } from './transformJpegXLToBmp';
-import { zstdFetch as fetch } from './zstdFetch';
 
 self.addEventListener('install', (ev: ExtendableEvent) => {
   ev.waitUntil(self.skipWaiting());
