@@ -5,14 +5,10 @@ type Props = {
   to?: string;
 } & JSX.IntrinsicElements['a'];
 
-export const Link: React.FC<Props> = ({ children, to, ...rest }) => {
-  if (to) {
-    return (
-      <_Link to={to} {...rest} ref={null}>
-        {children}
-      </_Link>
-    );
-  }
-
-  return <a {...rest}>{children}</a>;
+export const Link: React.FC<Props> = ({ children, href, to, ...rest }) => {
+  return (
+    <_Link to={to || href || '#'} {...rest} ref={null}>
+      {children}
+    </_Link>
+  );
 };
