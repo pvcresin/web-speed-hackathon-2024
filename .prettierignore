@@ -2,3 +2,4 @@ dist
 build
 migrations
 seeds
+workspaces/client/assets/magika
