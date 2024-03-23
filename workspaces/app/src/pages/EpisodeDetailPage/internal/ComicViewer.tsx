@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import { useState } from 'react';
-import { useInterval, useUpdate } from 'react-use';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { ComicViewerCore } from '../../../features/viewer/components/ComicViewerCore';
@@ -25,6 +24,7 @@ const _Wrapper = styled.div<{
   grid-template-columns: 100%;
   grid-template-rows: 100%;
   max-height: ${({ $maxHeight }) => addUnitIfNeeded($maxHeight)};
+  min-height: ${MIN_VIEWER_HEIGHT}px;
   overflow: hidden;
 `;
 
@@ -33,23 +33,34 @@ type Props = {
 };
 
 export const ComicViewer: React.FC<Props> = ({ episodeId }) => {
-  // 画面のリサイズに合わせて再描画する
-  const rerender = useUpdate();
-  useInterval(rerender, 0);
-
   const [el, ref] = useState<HTMLDivElement | null>(null);
 
-  // コンテナの幅
-  const cqw = (el?.getBoundingClientRect().width ?? 0) / 100;
+  const [viewerHeight, setViewerHeight] = useState(MIN_VIEWER_HEIGHT);
 
-  // 1画面に表示できるページ数（1 or 2）
-  const pageCountParView = 100 * cqw <= 2 * MIN_PAGE_WIDTH ? 1 : 2;
-  // 1ページの幅の候補
-  const candidatePageWidth = (100 * cqw) / pageCountParView;
-  // 1ページの高さの候補
-  const candidatePageHeight = (candidatePageWidth / IMAGE_WIDTH) * IMAGE_HEIGHT;
-  // ビュアーの高さ
-  const viewerHeight = _.clamp(candidatePageHeight, MIN_VIEWER_HEIGHT, MAX_VIEWER_HEIGHT);
+  // 画面のリサイズに合わせて再描画する
+  useEffect(() => {
+    const handleResize = () => {
+      // コンテナの幅
+      const cqw = (el?.getBoundingClientRect().width ?? 0) / 100;
+
+      // 1画面に表示できるページ数（1 or 2）
+      const pageCountParView = 100 * cqw <= 2 * MIN_PAGE_WIDTH ? 1 : 2;
+      // 1ページの幅の候補
+      const candidatePageWidth = (100 * cqw) / pageCountParView;
+      // 1ページの高さの候補
+      const candidatePageHeight = (candidatePageWidth / IMAGE_WIDTH) * IMAGE_HEIGHT;
+      // ビュアーの高さ
+      const viewerHeight = _.clamp(candidatePageHeight, MIN_VIEWER_HEIGHT, MAX_VIEWER_HEIGHT);
+
+      setViewerHeight(viewerHeight);
+    };
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [el]);
 
   return (
     <_Container ref={ref}>
