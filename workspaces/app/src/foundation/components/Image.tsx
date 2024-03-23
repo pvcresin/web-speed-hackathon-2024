@@ -12,6 +12,7 @@ const _Image = styled.img<{
   width: ${({ $width }) => addUnitIfNeeded($width)};
   height: ${({ $height }) => addUnitIfNeeded($height)};
   display: block;
+  aspect-ratio: ${({ $height, $width }) => `${$width} / ${$height}`};
 `;
 
 type Props = {
@@ -20,6 +21,6 @@ type Props = {
   width: number | string;
 } & JSX.IntrinsicElements['img'];
 
-export const Image: React.FC<Props> = ({ height, loading = 'eager', objectFit, width, ...rest }) => {
+export const Image: React.FC<Props> = ({ height, loading = 'lazy', objectFit, width, ...rest }) => {
   return <_Image {...rest} $height={height} $objectFit={objectFit} $width={width} loading={loading} />;
 };
