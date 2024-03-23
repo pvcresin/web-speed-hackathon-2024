@@ -10,7 +10,7 @@ import { registerServiceWorker } from './utils/registerServiceWorker';
 
 const main = async () => {
   await registerServiceWorker();
-  // await preloadImages();
+  await preloadImages();
 
   const root = document.getElementById('root');
   if (!root) return;
