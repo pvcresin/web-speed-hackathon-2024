@@ -8,9 +8,14 @@ import { Color, Space, Typography } from '../../foundation/styles/variables';
 import { Input } from './internal/Input';
 import { SearchResult } from './internal/SearchResult';
 
-const SearchPage: React.FC = () => {
+const SearchResultContainer: React.FC<{
+  keyword: string;
+}> = ({ keyword }) => {
   const { data: books } = useBookList({ query: {} });
+  return <SearchResult books={books} keyword={keyword} />;
+};
 
+const SearchPage: React.FC = () => {
   const searchResultsA11yId = useId();
 
   const [isClient, setIsClient] = useState(false);
@@ -34,18 +39,18 @@ const SearchPage: React.FC = () => {
         <Text color={Color.MONO_100} id={searchResultsA11yId} typography={Typography.NORMAL20} weight="bold">
           検索結果
         </Text>
-        {keyword !== '' && <SearchResult books={books} keyword={keyword} />}
+        {keyword === '' ? null : (
+          <Suspense fallback={null}>
+            <SearchResultContainer keyword={keyword} />
+          </Suspense>
+        )}
       </Box>
     </Box>
   );
 };
 
 const SearchPageWithSuspense: React.FC = () => {
-  return (
-    <Suspense fallback={null}>
-      <SearchPage />
-    </Suspense>
-  );
+  return <SearchPage />;
 };
 
 export { SearchPageWithSuspense as SearchPage };
