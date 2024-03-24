@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import styled from 'styled-components';
 
 import { Box } from '../../../foundation/components/Box';
@@ -32,7 +33,7 @@ type Props = {
   episodeId: string;
 };
 
-export const EpisodeListItem: React.FC<Props> = ({ bookId, episodeId }) => {
+const EpisodeListItem: React.FC<Props> = ({ bookId, episodeId }) => {
   const { data: episode } = useEpisode({ params: { episodeId } });
 
   const imageUrl = useImage({ height: 96, imageId: episode.image.id, width: 96 });
@@ -70,3 +71,13 @@ export const EpisodeListItem: React.FC<Props> = ({ bookId, episodeId }) => {
     </_Wrapper>
   );
 };
+
+const EpisodeListItemWithSuspense: React.FC<Props> = (props) => {
+  return (
+    <Suspense fallback={<Spacer height={121} />}>
+      <EpisodeListItem {...props} />
+    </Suspense>
+  );
+};
+
+export { EpisodeListItemWithSuspense as EpisodeListItem };

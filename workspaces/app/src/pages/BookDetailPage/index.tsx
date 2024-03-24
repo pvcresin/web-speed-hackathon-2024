@@ -45,17 +45,49 @@ const _AvatarWrapper = styled.div`
   }
 `;
 
-const BookDetailPage: React.FC = () => {
-  const { bookId } = useParams<RouteParams<'/books/:bookId'>>();
-  invariant(bookId);
-
+const BookHead: React.FC<{ bookId: string }> = ({ bookId }) => {
   const { data: book } = useBook({ params: { bookId } });
-  const { data: episodeList } = useEpisodeList({ query: { bookId } });
-
-  const [isFavorite, toggleFavorite] = useAtom(FavoriteBookAtomFamily(bookId));
 
   const bookImageUrl = useImage({ height: 256, imageId: book.image.id, width: 192 });
   const authorImageUrl = useImage({ height: 32, imageId: book.author.image.id, width: 32 });
+
+  return (
+    <_HeadingWrapper aria-label="作品情報">
+      {bookImageUrl != null && (
+        <Image alt={book.name} height={256} loading="eager" objectFit="cover" src={bookImageUrl} width={192} />
+      )}
+      <Flex align="flex-start" direction="column" gap={Space * 1} justify="flex-end">
+        <Box>
+          <Text color={Color.MONO_100} typography={Typography.NORMAL20} weight="bold">
+            {book.name}
+          </Text>
+          <Spacer height={Space * 1} />
+          <Text as="p" color={Color.MONO_100} typography={Typography.NORMAL14}>
+            {book.description}
+          </Text>
+        </Box>
+
+        <Spacer height={Space * 1} />
+
+        <_AuthorWrapper href={`/authors/${book.author.id}`}>
+          {authorImageUrl != null && (
+            <_AvatarWrapper>
+              <Image alt={book.author.name} height={32} objectFit="cover" src={authorImageUrl} width={32} />
+            </_AvatarWrapper>
+          )}
+          <Text color={Color.MONO_100} typography={Typography.NORMAL14}>
+            {book.author.name}
+          </Text>
+        </_AuthorWrapper>
+      </Flex>
+    </_HeadingWrapper>
+  );
+};
+
+const EpisodeList: React.FC<{ bookId: string }> = ({ bookId }) => {
+  const { data: episodeList } = useEpisodeList({ query: { bookId } });
+
+  const [isFavorite, toggleFavorite] = useAtom(FavoriteBookAtomFamily(bookId));
 
   const handleFavClick = useCallback(() => {
     toggleFavorite();
@@ -64,46 +96,13 @@ const BookDetailPage: React.FC = () => {
   const latestEpisode = episodeList?.find((episode) => episode.chapter === 1);
 
   return (
-    <Box height="100%" position="relative" px={Space * 2}>
-      <_HeadingWrapper aria-label="作品情報">
-        {bookImageUrl != null && (
-          <Image alt={book.name} height={256} loading="eager" objectFit="cover" src={bookImageUrl} width={192} />
-        )}
-        <Flex align="flex-start" direction="column" gap={Space * 1} justify="flex-end">
-          <Box>
-            <Text color={Color.MONO_100} typography={Typography.NORMAL20} weight="bold">
-              {book.name}
-            </Text>
-            <Spacer height={Space * 1} />
-            <Text as="p" color={Color.MONO_100} typography={Typography.NORMAL14}>
-              {book.description}
-            </Text>
-          </Box>
-
-          <Spacer height={Space * 1} />
-
-          <_AuthorWrapper href={`/authors/${book.author.id}`}>
-            {authorImageUrl != null && (
-              <_AvatarWrapper>
-                <Image alt={book.author.name} height={32} objectFit="cover" src={authorImageUrl} width={32} />
-              </_AvatarWrapper>
-            )}
-            <Text color={Color.MONO_100} typography={Typography.NORMAL14}>
-              {book.author.name}
-            </Text>
-          </_AuthorWrapper>
-        </Flex>
-      </_HeadingWrapper>
-
+    <>
       <BottomNavigator
         bookId={bookId}
         isFavorite={isFavorite}
         latestEpisodeId={latestEpisode?.id ?? ''}
         onClickFav={handleFavClick}
       />
-
-      <Separator />
-
       <section aria-label="エピソード一覧">
         <Flex align="center" as="ul" direction="column" justify="center">
           {episodeList.map((episode) => (
@@ -119,6 +118,23 @@ const BookDetailPage: React.FC = () => {
           )}
         </Flex>
       </section>
+    </>
+  );
+};
+
+const BookDetailPage: React.FC = () => {
+  const { bookId } = useParams<RouteParams<'/books/:bookId'>>();
+  invariant(bookId);
+
+  return (
+    <Box height="100%" position="relative" px={Space * 2}>
+      <Suspense fallback={<Spacer height={272} />}>
+        <BookHead bookId={bookId} />
+      </Suspense>
+      <Separator />
+      <Suspense fallback={<Spacer height={121 * 15} />}>
+        <EpisodeList bookId={bookId} />
+      </Suspense>
     </Box>
   );
 };
