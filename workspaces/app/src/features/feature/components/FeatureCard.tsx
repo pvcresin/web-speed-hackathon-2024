@@ -4,6 +4,7 @@ import { styled } from 'styled-components';
 import { Flex } from '../../../foundation/components/Flex';
 import { Image } from '../../../foundation/components/Image';
 import { Link } from '../../../foundation/components/Link';
+import { Spacer } from '../../../foundation/components/Spacer';
 import { Text } from '../../../foundation/components/Text';
 import { useImage } from '../../../foundation/hooks/useImage';
 import { Color, Radius, Space, Typography } from '../../../foundation/styles/variables';
@@ -86,7 +87,7 @@ const FeatureCard: React.FC<Props> = ({ bookId }) => {
 
 const FeatureCardWithSuspense: React.FC<Props> = (props) => {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<Spacer height={206} width={330} />}>
       <FeatureCard {...props} />
     </Suspense>
   );

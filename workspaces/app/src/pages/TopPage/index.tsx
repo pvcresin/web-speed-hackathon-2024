@@ -15,12 +15,45 @@ import { getDayOfWeekStr } from '../../lib/date/getDayOfWeekStr';
 
 import { CoverSection } from './internal/CoverSection';
 
-const TopPage: React.FC = () => {
+const FeatureListSection: React.FC = () => {
+  const { data: featureList } = useFeatureList({ query: {} });
+  return (
+    <Box maxWidth="100%" overflowX="scroll" overflowY="hidden">
+      <Flex align="stretch" direction="row" gap={Space * 2} justify="flex-start">
+        {featureList?.map((feature) => <FeatureCard key={feature.id} bookId={feature.book.id} />)}
+      </Flex>
+    </Box>
+  );
+};
+
+const RankingSection: React.FC = () => {
+  const { data: rankingList } = useRankingList({ query: {} });
+  return (
+    <Box maxWidth="100%" overflowX="hidden" overflowY="hidden">
+      <Flex align="center" as="ul" direction="column" justify="center">
+        {rankingList.map((ranking) => (
+          <RankingCard key={ranking.id} bookId={ranking.book.id} />
+        ))}
+      </Flex>
+    </Box>
+  );
+};
+
+const ReleaseSection: React.FC = () => {
   const todayStr = getDayOfWeekStr(new Date());
   const { data: release } = useRelease({ params: { dayOfWeek: todayStr } });
-  const { data: featureList } = useFeatureList({ query: {} });
-  const { data: rankingList } = useRankingList({ query: {} });
+  return (
+    <Box maxWidth="100%" overflowX="scroll" overflowY="hidden">
+      <Flex align="stretch" gap={Space * 2} justify="flex-start">
+        {release.books.map((book) => (
+          <BookCard key={book.id} bookId={book.id} />
+        ))}
+      </Flex>
+    </Box>
+  );
+};
 
+const TopPage: React.FC = () => {
   const pickupA11yId = useId();
   const rankingA11yId = useId();
   const todayA11yId = useId();
@@ -36,13 +69,9 @@ const TopPage: React.FC = () => {
             ピックアップ
           </Text>
           <Spacer height={Space * 2} />
-          <Box maxWidth="100%" overflowX="scroll" overflowY="hidden">
-            <Flex align="stretch" direction="row" gap={Space * 2} justify="flex-start">
-              {featureList.map((feature) => (
-                <FeatureCard key={feature.id} bookId={feature.book.id} />
-              ))}
-            </Flex>
-          </Box>
+          <Suspense fallback={<Spacer height={206} />}>
+            <FeatureListSection />
+          </Suspense>
         </Box>
 
         <Spacer height={Space * 2} />
@@ -52,13 +81,9 @@ const TopPage: React.FC = () => {
             ランキング
           </Text>
           <Spacer height={Space * 2} />
-          <Box maxWidth="100%" overflowX="hidden" overflowY="hidden">
-            <Flex align="center" as="ul" direction="column" justify="center">
-              {rankingList.map((ranking) => (
-                <RankingCard key={ranking.id} bookId={ranking.book.id} />
-              ))}
-            </Flex>
-          </Box>
+          <Suspense fallback={<Spacer height={155 * 5} />}>
+            <RankingSection />
+          </Suspense>
         </Box>
 
         <Spacer height={Space * 2} />
@@ -68,13 +93,9 @@ const TopPage: React.FC = () => {
             本日更新
           </Text>
           <Spacer height={Space * 2} />
-          <Box maxWidth="100%" overflowX="scroll" overflowY="hidden">
-            <Flex align="stretch" gap={Space * 2} justify="flex-start">
-              {release.books.map((book) => (
-                <BookCard key={book.id} bookId={book.id} />
-              ))}
-            </Flex>
-          </Box>
+          <Suspense fallback={<Spacer height={244} />}>
+            <ReleaseSection />
+          </Suspense>
         </Box>
       </Box>
     </Flex>
@@ -82,11 +103,7 @@ const TopPage: React.FC = () => {
 };
 
 const TopPageWithSuspense: React.FC = () => {
-  return (
-    <Suspense fallback={null}>
-      <TopPage />
-    </Suspense>
-  );
+  return <TopPage />;
 };
 
 export { TopPageWithSuspense as TopPage };
